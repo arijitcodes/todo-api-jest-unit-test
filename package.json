@@ -1,0 +1,27 @@
+{
+  "name": "todo-api-unit-test-demo",
+  "version": "1.0.0",
+  "description": "A Todo API for a Demo Implementation of Unite Testing using JEST.",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/arijitcodes/todo-api-jest-unit-test.git"
+  },
+  "keywords": [
+    "Todo",
+    "API",
+    "JEST",
+    "Unit",
+    "Test",
+    "Demo"
+  ],
+  "author": "ARIJIT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arijitcodes/todo-api-jest-unit-test/issues"
+  },
+  "homepage": "https://github.com/arijitcodes/todo-api-jest-unit-test#readme"
+}
