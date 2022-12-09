@@ -48,7 +48,7 @@ const updateTodoStatus = async (req, res, next) => {
     }
 
     todo.status = !todo.status;
-    todo.save();
+    await todo.save();
 
     return res.json({ todo });
   } catch (error) {
