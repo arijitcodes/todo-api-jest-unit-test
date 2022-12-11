@@ -3,6 +3,7 @@ const {
   getTodo,
   createTodo,
   updateTodoStatus,
+  deleteTodo,
 } = require("./todo");
 const TodoModel = require("../models/Todo");
 
@@ -181,15 +182,10 @@ describe("Todo Controller - updateTodoStatus()", () => {
   let mNext;
 
   beforeEach(() => {
-    todo = {
-      _id: "6391b4f44f413dfe313654ef",
+    todo = new TodoModel({
       title: "Todo 1",
       description: "This is the First Todo",
-      status: false,
-      createdAt: "2022-12-08T09:57:08.764Z",
-      updatedAt: "2022-12-08T09:57:08.764Z",
-      __v: 0,
-    };
+    });
 
     mReq = { params: { id: 0 } };
     mRes = {
@@ -220,17 +216,14 @@ describe("Todo Controller - updateTodoStatus()", () => {
 
   test("should not throw error if Request Params ID is valid and respond with expected Todo", async () => {
     mReq.params.id = todo._id;
-    const oldTodo = todo;
+    const tempTodo = { ...todo, status: !todo.status };
 
     jest.spyOn(TodoModel, "findById").mockResolvedValue(todo);
-    jest
-      .spyOn(TodoModel.prototype, "save")
-      .mockResolvedValue({ ...todo, status: !oldTodo.status });
     /* jest
       .spyOn(TodoModel.prototype, "save")
-      .mockImplementationOnce((todo) =>
-        Promise.resolve({ ...todo, status: !oldTodo.status })
-      ); */
+      .mockImplementationOnce(() => Promise.resolve());
+    */
+    jest.spyOn(TodoModel.prototype, "save").mockResolvedValue(tempTodo);
 
     await updateTodoStatus(mReq, mRes, mNext);
 
@@ -238,6 +231,70 @@ describe("Todo Controller - updateTodoStatus()", () => {
     expect(TodoModel.findById).toHaveBeenCalledWith(todo._id);
     expect(TodoModel.findById).toHaveReturned();
     expect(errorResponse).not.toHaveBeenCalled();
+    expect(TodoModel.prototype.save).toHaveBeenCalledTimes(1);
     expect(mRes.json).toHaveBeenCalledTimes(1);
+    expect(mRes.json).toHaveBeenCalledWith({ todo });
+  });
+});
+
+describe("Todo Controller - deleteTodo()", () => {
+  let todo;
+  let mReq;
+  let mRes;
+  let mNext;
+
+  beforeEach(() => {
+    todo = new TodoModel({
+      title: "Todo 1",
+      description: "This is the First Todo",
+    });
+
+    mReq = { params: { id: 0 } };
+    mRes = {
+      status: jest.fn().mockReturnThis(),
+      body: {},
+      json: jest.fn((input) => {
+        this.body = input;
+      }),
+    };
+    mNext = jest.fn();
+  });
+
+  test("should throw error if Request Params ID is invalid", async () => {
+    jest.spyOn(TodoModel, "findById").mockResolvedValue(null);
+
+    await deleteTodo(mReq, mRes, mNext);
+
+    expect(TodoModel.findById).toHaveBeenCalledTimes(1);
+    expect(TodoModel.findById).toHaveBeenCalledWith(0);
+    expect(errorResponse).toHaveBeenCalledTimes(1);
+    expect(errorResponse).toHaveBeenCalledWith(
+      mRes,
+      404,
+      "Invalid Todo ID! Todo Not Found!"
+    );
+    expect(mRes.json).not.toHaveBeenCalled();
+  });
+
+  test("should not throw error if Request Params ID is valid and respond with deleted Todo", async () => {
+    mReq.params.id = todo._id;
+    const tempTodo = { deleted: true, deletedTodo: todo };
+
+    jest.spyOn(TodoModel, "findById").mockResolvedValue(todo);
+    /* jest
+      .spyOn(TodoModel.prototype, "save")
+      .mockImplementationOnce(() => Promise.resolve());
+    */
+    jest.spyOn(TodoModel.prototype, "delete").mockResolvedValue(true);
+
+    await deleteTodo(mReq, mRes, mNext);
+
+    expect(TodoModel.findById).toHaveBeenCalledTimes(1);
+    expect(TodoModel.findById).toHaveBeenCalledWith(todo._id);
+    expect(TodoModel.findById).toHaveReturned();
+    expect(errorResponse).not.toHaveBeenCalled();
+    expect(TodoModel.prototype.delete).toHaveBeenCalledTimes(1);
+    expect(mRes.json).toHaveBeenCalledTimes(1);
+    expect(mRes.json).toHaveBeenCalledWith(tempTodo);
   });
 });
