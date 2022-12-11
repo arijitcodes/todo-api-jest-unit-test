@@ -65,7 +65,7 @@ const deleteTodo = async (req, res, next) => {
       return errorResponse(res, 404, "Invalid Todo ID! Todo Not Found!");
     }
 
-    todo.delete();
+    await todo.delete();
     return res.json({ deleted: true, deletedTodo: todo });
   } catch (error) {
     next(error);
