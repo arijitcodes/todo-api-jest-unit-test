@@ -26,10 +26,24 @@ describe("Todo Controller - getAllTodos()", () => {
     // jest.spyOn(TodoModel, "find").mockImplementation(() => mockTodoFind());
 
     await getAllTodos(mReq, mRes, mNext);
+
     expect(TodoModel.find).toHaveBeenCalledTimes(1);
     expect(mRes.json).toBeCalledWith({ count: 0, todos: [] });
     expect(mNext).not.toBeCalled();
     expect(getAllTodos).not.toThrowError();
+  });
+
+  test("should handle exception using catch block if exceptions happen", async () => {
+    jest.spyOn(TodoModel, "find").mockImplementation(() => {
+      throw new Error("Something Went Wrong!");
+    });
+
+    await getAllTodos(mReq, mRes, mNext);
+
+    expect(TodoModel.find).toHaveBeenCalledTimes(1);
+    expect(mRes.json).not.toHaveBeenCalled();
+    expect(mNext).toHaveBeenCalledTimes(1);
+    expect(mNext).toHaveBeenCalledWith(new Error("Something Went Wrong!"));
   });
 });
 
@@ -88,6 +102,20 @@ describe("Todo Controller - getTodo()", () => {
       404,
       "Invalid Todo ID! Todo Not Found!"
     );
+  });
+
+  test("should handle exception using catch block if exceptions happen", async () => {
+    jest.spyOn(TodoModel, "findById").mockImplementation(() => {
+      throw new Error("Something Went Wrong!");
+    });
+
+    await getTodo(mReq, mRes, mNext);
+
+    expect(TodoModel.findById).toHaveBeenCalledTimes(1);
+    expect(TodoModel.findById).toHaveBeenCalledWith(mReq.params.id);
+    expect(mRes.json).not.toHaveBeenCalled();
+    expect(mNext).toHaveBeenCalledTimes(1);
+    expect(mNext).toHaveBeenCalledWith(new Error("Something Went Wrong!"));
   });
 
   test("should return valid todo if ID is good", async () => {
@@ -155,6 +183,7 @@ describe("Todo Controller - createTodo()", () => {
 
     expect(TodoModel.create).toHaveBeenCalledTimes(1);
     expect(TodoModel.create).toHaveBeenCalledWith(mReq.body);
+    expect(mRes.json).not.toHaveBeenCalled();
     expect(mNext).toHaveBeenCalledTimes(1);
     expect(mNext).toHaveBeenCalledWith(
       new Error("Todo validation failed: title: Title is a required field!")
@@ -212,6 +241,20 @@ describe("Todo Controller - updateTodoStatus()", () => {
       "Invalid Todo ID! Todo Not Found!"
     );
     expect(mRes.json).not.toHaveBeenCalled();
+  });
+
+  test("should handle exception using catch block if exceptions happen", async () => {
+    jest.spyOn(TodoModel, "findById").mockImplementation(() => {
+      throw new Error("Something Went Wrong!");
+    });
+
+    await updateTodoStatus(mReq, mRes, mNext);
+
+    expect(TodoModel.findById).toHaveBeenCalledTimes(1);
+    expect(TodoModel.findById).toHaveBeenCalledWith(mReq.params.id);
+    expect(mRes.json).not.toHaveBeenCalled();
+    expect(mNext).toHaveBeenCalledTimes(1);
+    expect(mNext).toHaveBeenCalledWith(new Error("Something Went Wrong!"));
   });
 
   test("should not throw error if Request Params ID is valid and respond with expected Todo", async () => {
@@ -274,6 +317,20 @@ describe("Todo Controller - deleteTodo()", () => {
       "Invalid Todo ID! Todo Not Found!"
     );
     expect(mRes.json).not.toHaveBeenCalled();
+  });
+
+  test("should handle exception using catch block if exceptions happen", async () => {
+    jest.spyOn(TodoModel, "findById").mockImplementation(() => {
+      throw new Error("Something Went Wrong!");
+    });
+
+    await deleteTodo(mReq, mRes, mNext);
+
+    expect(TodoModel.findById).toHaveBeenCalledTimes(1);
+    expect(TodoModel.findById).toHaveBeenCalledWith(mReq.params.id);
+    expect(mRes.json).not.toHaveBeenCalled();
+    expect(mNext).toHaveBeenCalledTimes(1);
+    expect(mNext).toHaveBeenCalledWith(new Error("Something Went Wrong!"));
   });
 
   test("should not throw error if Request Params ID is valid and respond with deleted Todo", async () => {

@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node ./src/server",
     "dev": "nodemon ./src/server",
-    "test": "jest",
-    "test-dev": "jest --watch",
+    "test": "jest . --coverage",
+    "test-dev": "jest . --coverage --watch --detectOpenHandles",
     "test-dev-watchAll": "jest --watchAll"
   },
   "dependencies": {
